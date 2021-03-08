@@ -4,7 +4,7 @@ import { useTheme } from "../lib/theme";
 
 import "../css/style.css";
 
-export const Switch: React.FC = () => {
+export const SwitchTheme: React.FC = () => {
   const { dark, switchTheme } = useTheme();
 
   return (
