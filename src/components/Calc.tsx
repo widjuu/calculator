@@ -4,10 +4,13 @@ import classNames from "classnames";
 //components
 import { Display } from "./Display";
 import { Pad } from "./Pad";
+import { History } from "./History";
 import "../css/style.css";
 
 //utils
 import { useTheme } from "../lib/theme";
+
+let history: any = [];
 
 export const Calc: React.FC = () => {
   const { dark } = useTheme();
@@ -15,6 +18,11 @@ export const Calc: React.FC = () => {
   const [waitingForOperand, setWaitingForOperand] = useState<boolean>(true);
   const [pendingOperator, setPendingOperator] = useState<string>();
   const [display, setDisplay] = useState<string>("0");
+
+  const [showHistory, setShowHistory] = useState<boolean>(false);
+  const switchHistory = () => {
+    setShowHistory((prev) => !prev);
+  };
 
   const className = classNames(
     "wrapper",
@@ -44,6 +52,12 @@ export const Calc: React.FC = () => {
 
         newResult /= rightOperand;
     }
+
+    let res = `${result}${pendingOperator}${
+      waitingForOperand ? "" : display
+    } = ${newResult}`;
+    history.push(res);
+    window.localStorage.setItem("history", history);
 
     setResult(newResult);
     setDisplay(newResult.toString().toString().slice(0, 7));
@@ -137,16 +151,23 @@ export const Calc: React.FC = () => {
   };
 
   return (
-    <div className={className}>
-      <Display display={display} />
-      <Pad
-        onNumClick={onNumClick}
-        onPointButtonClick={onPointButtonClick}
-        onOperatorButtonClick={onOperatorButtonClick}
-        onChangeSignButtonClick={onChangeSignButtonClick}
-        onResultButtonClick={onResultButtonClick}
-        onClearButtonClick={onClearButtonClick}
-      />
-    </div>
+    <>
+      {!showHistory ? (
+        <div className={className}>
+          <Display display={display} />
+          <Pad
+            onNumClick={onNumClick}
+            onPointButtonClick={onPointButtonClick}
+            onOperatorButtonClick={onOperatorButtonClick}
+            onChangeSignButtonClick={onChangeSignButtonClick}
+            onResultButtonClick={onResultButtonClick}
+            onClearButtonClick={onClearButtonClick}
+            switchHistory={switchHistory}
+          />
+        </div>
+      ) : (
+        <History switchHistory={switchHistory} />
+      )}
+    </>
   );
 };

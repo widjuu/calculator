@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import classNames from "classnames";
 
 import "../css/style.css";
@@ -13,6 +13,7 @@ interface IButtonsGroup {
   onChangeSignButtonClick: () => void;
   onResultButtonClick: () => void;
   onClearButtonClick: () => void;
+  switchHistory: () => void;
 }
 
 export const Pad: React.FC<IButtonsGroup> = ({
@@ -22,6 +23,7 @@ export const Pad: React.FC<IButtonsGroup> = ({
   onChangeSignButtonClick,
   onResultButtonClick,
   onClearButtonClick,
+  switchHistory,
 }) => {
   const { dark } = useTheme();
   const numButton = classNames(
@@ -38,6 +40,36 @@ export const Pad: React.FC<IButtonsGroup> = ({
     "button",
     dark ? "operator-button_dark" : "operator-button_light"
   );
+
+  const handleKeyDown = ({ keyCode, shiftKey }: KeyboardEvent) => {
+    console.log(keyCode);
+    if (keyCode >= 48 && keyCode <= 57 && !shiftKey) {
+      onNumClick((keyCode - 48) as number);
+    } else if (keyCode >= 96 && keyCode <= 105) {
+      onNumClick((keyCode - 96) as number);
+    } else if (keyCode === 107 || (keyCode === 187 && shiftKey)) {
+      onOperatorButtonClick("+");
+    } else if (keyCode === 109 || keyCode === 189) {
+      onOperatorButtonClick("-");
+    } else if (keyCode === 106 || (keyCode === 56 && shiftKey)) {
+      onOperatorButtonClick("×");
+    } else if (keyCode === 111 || keyCode === 191) {
+      onOperatorButtonClick("÷");
+    } else if (keyCode === 13 || (keyCode === 187 && !shiftKey)) {
+      onResultButtonClick();
+    } else if (keyCode === 46) {
+      onClearButtonClick();
+    } else if (keyCode === 27) {
+      onClearButtonClick();
+    } else if (keyCode === 78) {
+      onChangeSignButtonClick();
+    }
+  };
+
+  useEffect(() => {
+    document.body.addEventListener("keydown", handleKeyDown);
+    return () => document.body.removeEventListener("keydown", handleKeyDown);
+  });
 
   return (
     <>
@@ -111,7 +143,9 @@ export const Pad: React.FC<IButtonsGroup> = ({
         <div className={numButton} onClick={() => onNumClick(0)}>
           0
         </div>
-        <div className={numButton}>&#8801;</div>
+        <div className={numButton} onClick={() => switchHistory()}>
+          &#8801;
+        </div>
         <div className={numButton} onClick={() => onPointButtonClick()}>
           .
         </div>
